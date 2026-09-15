@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inventaire de fermeture · Logements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F4EC;
+  --surface:#FFFFFF;
+  --surface-2:#EFEAE0;
+  --ink:#20261E;
+  --ink-soft:#63685E;
+  --line:#E0DACB;
+  --primary:#2E4A3B;
+  --primary-dark:#1E3327;
+  --primary-tint:#E3EAE3;
+  --amber:#B9701F;
+  --amber-tint:#FAEAD4;
+  --amber-line:#EBCE9D;
+  --blue:#33607E;
+  --blue-tint:#E1EBF1;
+  --radius-s:8px;
+  --radius-m:14px;
+  --radius-l:20px;
+  --shadow: 0 1px 2px rgba(32,38,30,.06), 0 1px 1px rgba(32,38,30,.04);
+  --font-display:'Space Grotesk', 'Arial Narrow', Arial, sans-serif;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+button, input, textarea{font-family:inherit;}
+button{cursor:pointer;}
+.app{
+  max-width:640px;
+  margin:0 auto;
+  min-height:100vh;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+}
+
+/* ---------- App bar ---------- */
+.appbar{
+  position:sticky; top:0; z-index:20;
+  background:var(--primary);
+  color:#fff;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:var(--shadow);
+}
+.appbar .mark{
+  width:30px;height:30px;flex:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.appbar .titles{flex:1; min-width:0;}
+.appbar .eyebrow{
+  font-size:12px;
+  color:#C9D6C9;
+  line-height:1.3;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.appbar h1{
+  font-family:var(--font-display);
+  font-size:18px;
+  font-weight:600;
+  margin:0;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.backbtn{
+  flex:none;
+  width:38px;height:38px;
+  border-radius:10px;
+  border:none;
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+.backbtn:active{background:rgba(255,255,255,.24);}
+.iconbtn{
+  flex:none;
+  width:38px;height:38px;
+  border-radius:10px;
+  border:none;
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+}
+.iconbtn:active{background:rgba(255,255,255,.24);}
+
+.progressbar{height:4px; background:rgba(255,255,255,.18);}
+.progressbar > div{height:100%; background:#E8B25A; transition:width .25s ease;}
+
+/* ---------- Main content ---------- */
+.content{flex:1; padding:18px 16px 96px;}
+.section-title{
+  font-family:var(--font-display);
+  font-size:15px;
+  font-weight:600;
+  color:var(--ink-soft);
+  margin:22px 2px 10px;
+}
+.section-title:first-child{margin-top:2px;}
+
+/* ---------- Home stat strip ---------- */
+.hero{
+  background:var(--primary);
+  color:#fff;
+  border-radius:var(--radius-l);
+  padding:20px 20px 18px;
+  margin-bottom:6px;
+}
+.hero .big{
+  font-family:var(--font-display);
+  font-size:40px;
+  font-weight:700;
+  line-height:1;
+  letter-spacing:-0.01em;
+}
+.hero .big span{font-size:20px; font-weight:500; color:#C9D6C9; letter-spacing:0;}
+.hero .sub{margin-top:6px; font-size:14px; color:#CFDBCE;}
+.hero .track{margin-top:14px; height:6px; border-radius:4px; background:rgba(255,255,255,.16); overflow:hidden;}
+.hero .track > div{height:100%; background:#E8B25A; border-radius:4px;}
+
+/* ---------- Cards grid ---------- */
+.grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.typo-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:14px;
+  text-align:left;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-height:104px;
+}
+.typo-card:active{background:var(--surface-2);}
+.typo-card .name{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:14.5px;
+  line-height:1.25;
+  color:var(--ink);
+}
+.typo-card .meta{
+  margin-top:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.typo-card .count{font-size:12.5px; color:var(--ink-soft);}
+.pill{
+  font-size:11.5px;
+  font-weight:600;
+  padding:3px 8px;
+  border-radius:20px;
+  background:var(--surface-2);
+  color:var(--ink-soft);
+}
+.pill.done{background:var(--primary-tint); color:var(--primary-dark);}
+.pill.zero{background:var(--surface-2); color:var(--ink-soft);}
+
+/* ---------- Lodging chips ---------- */
+.lodging-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.lodging-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:14px 8px;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+.lodging-card:active{background:var(--surface-2);}
+.lodging-card .num{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:17px;
+}
+.status-dot{width:8px;height:8px;border-radius:50%; background:var(--line);}
+.status-dot.progress{background:var(--amber);}
+.status-dot.done{background:var(--primary);}
+.lodging-card .label{font-size:11px; color:var(--ink-soft);}
+
+/* ---------- Checklist ---------- */
+.tally{
+  display:flex; gap:10px; margin-bottom:14px;
+}
+.tally .box{
+  flex:1;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:12px 14px;
+}
+.tally .box .n{font-family:var(--font-display); font-size:22px; font-weight:700;}
+.tally .box .l{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+.tally .box.warn .n{color:var(--amber);}
+
+.toolbar{
+  display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;
+}
+.searchbox{
+  flex:1 1 160px;
+  display:flex; align-items:center; gap:8px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-s);
+  padding:9px 12px;
+}
+.searchbox input{
+  border:none; outline:none; background:transparent; width:100%;
+  font-size:14.5px; color:var(--ink);
+}
+.chip-toggle{
+  border:1px solid var(--line);
+  background:var(--surface);
+  border-radius:var(--radius-s);
+  padding:9px 13px;
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+.chip-toggle.active{
+  background:var(--primary); color:#fff; border-color:var(--primary);
+}
+.linkbtn{
+  border:1px solid var(--line);
+  background:var(--surface);
+  border-radius:var(--radius-s);
+  padding:9px 13px;
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--primary-dark);
+}
+
+.item-row{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:12px 12px;
+  margin-bottom:8px;
+}
+.item-row.state-manque{border-color:var(--amber-line); background:var(--amber-tint);}
+.item-row.state-surplus{border-color:#BFD4E1; background:var(--blue-tint);}
+.item-top{display:flex; align-items:center; gap:10px;}
+.item-name{
+  flex:1;
+  font-size:14.5px;
+  font-weight:600;
+  line-height:1.3;
+}
+.item-ref{font-size:12px; color:var(--ink-soft); margin-top:2px; font-weight:400;}
+.stepper{display:flex; align-items:center; gap:0; flex:none;}
+.stepper button{
+  width:34px;height:34px;
+  border-radius:9px;
+  border:1px solid var(--line);
+  background:var(--surface);
+  font-size:18px;
+  font-weight:600;
+  color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+.stepper button:active{background:var(--surface-2);}
+.stepper input{
+  width:42px;
+  text-align:center;
+  border:none;
+  background:transparent;
+  font-family:var(--font-display);
+  font-size:17px;
+  font-weight:700;
+  color:var(--ink);
+  -moz-appearance:textfield;
+}
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+.item-row.state-manque .stepper input{color:var(--amber);}
+.item-row.state-surplus .stepper input{color:var(--blue);}
+.item-flag{
+  font-size:11.5px; font-weight:600; margin-top:6px;
+  color:var(--amber);
+}
+.item-row.state-surplus .item-flag{color:var(--blue);}
+.note-toggle{
+  margin-top:8px;
+  font-size:12px;
+  color:var(--ink-soft);
+  text-decoration:underline;
+  text-underline-offset:2px;
+  background:none; border:none; padding:0;
+}
+.note-area{margin-top:8px;}
+.note-area textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:var(--radius-s);
+  padding:8px 10px;
+  font-size:13px;
+  resize:vertical;
+  min-height:44px;
+  background:#fff;
+}
+
+.empty-note{
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:13.5px;
+  padding:28px 10px;
+}
+
+/* ---------- Bottom action bar ---------- */
+.actionbar{
+  position:sticky; bottom:0; z-index:15;
+  background:var(--surface);
+  border-top:1px solid var(--line);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  display:flex; gap:10px;
+}
+.btn{
+  flex:1;
+  border:none;
+  border-radius:var(--radius-s);
+  padding:13px 14px;
+  font-size:14.5px;
+  font-weight:700;
+  text-align:center;
+}
+.btn-primary{background:var(--primary); color:#fff;}
+.btn-primary:active{background:var(--primary-dark);}
+.btn-ghost{background:var(--surface-2); color:var(--ink);}
+.btn-ghost:active{background:var(--line);}
+
+/* ---------- Reassort screen ---------- */
+.reassort-row{
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-m);
+  padding:12px 14px;
+  margin-bottom:8px;
+}
+.reassort-row .name{font-size:14px; font-weight:600;}
+.reassort-row .from{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+.reassort-row .qty{
+  font-family:var(--font-display);
+  font-weight:700; font-size:18px;
+  color:var(--amber);
+  flex:none; padding-left:12px;
+}
+
+.notice{
+  background:var(--blue-tint);
+  border:1px solid #BFD4E1;
+  color:var(--blue);
+  border-radius:var(--radius-m);
+  padding:12px 14px;
+  font-size:13px;
+  margin-bottom:16px;
+  line-height:1.45;
+}
+
+.file-input{display:none;}
+
+@media (max-width:380px){
+  .lodging-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div id="app" class="app"></div>
+<script id="data-holder">
+const DATA = {"COTT.PREM.3CH": {"lodgings": ["N°9", "N°10", "N°11", "N°12", "N°13", "N°14", "N°15", "N°62"], "items": [{"name": "Assiette creuse", "qty": 12}, {"name": "Assiette dessert", "qty": 12}, {"name": "Assiette plate", "qty": 12}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 1}, {"name": "Balai brosse", "qty": 0}, {"name": "Bol", "qty": 6}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 6}, {"name": "Ciseaux", "qty": 1}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 12}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle fait tout", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 1}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 2}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 12}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 6}, {"name": "Grande assiette creuse", "qty": 0}, {"name": "Grande cuillière", "qty": 12}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 12}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 6}, {"name": "Pinces à linge", "qty": 20}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 1}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 1}, {"name": "Seau serpillère", "qty": 0}, {"name": "Serpillère", "qty": 0}, {"name": "Sous tasse", "qty": 6}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 6}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 6}, {"name": "Manche balai", "qty": 0}]}, "COTT.PREM.2CH": {"lodgings": ["N°61", "N°93", "N°94", "N°95", "N°96", "N°97"], "items": [{"name": "Assiette creuse", "qty": 10}, {"name": "Assiette dessert", "qty": 10}, {"name": "Assiette plate", "qty": 10}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 1}, {"name": "Balai brosse", "qty": 0}, {"name": "Bol", "qty": 6}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 5}, {"name": "Ciseaux", "qty": 1}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 10}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle fait tout", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 1}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 2}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 10}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 5}, {"name": "Grande assiette creuse", "qty": 0}, {"name": "Grande cuillière", "qty": 10}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 10}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 5}, {"name": "pinces à linge", "qty": 10}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 1}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 1}, {"name": "Seau serpillère", "qty": 0}, {"name": "Serpillère", "qty": 0}, {"name": "Sous tasse", "qty": 6}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 6}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 5}]}, "COTT.CONF.3CH": {"lodgings": ["N°16", "N°17", "N°18", "N°68"], "items": [{"name": "Assiette creuse", "qty": 6}, {"name": "Assiette dessert", "qty": 6}, {"name": "Assiette plate", "qty": 6}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 1}, {"name": "Balai brosse", "qty": 0}, {"name": "Bol", "qty": 6}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 6}, {"name": "Ciseaux", "qty": 1}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 6}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle plat à four", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 1}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 2}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 6}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 6}, {"name": "Grande assiette creuse", "qty": 0}, {"name": "Grande cuillière", "qty": 6}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 6}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 6}, {"name": "pinces à linge", "qty": 20}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 1}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 1}, {"name": "Seau serpillère", "qty": 0}, {"name": "Serpillère", "qty": 0}, {"name": "Sous tasse", "qty": 6}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 6}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 6}]}, "COTT.CONF.2CH": {"lodgings": ["N°98", "N°99", "N°100", "N°101", "N°102"], "items": [{"name": "Assiette creuse", "qty": 5}, {"name": "Assiette dessert", "qty": 5}, {"name": "Assiette plate", "qty": 5}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 1}, {"name": "Balai brosse", "qty": 0}, {"name": "Bol", "qty": 5}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 5}, {"name": "Ciseaux", "qty": 1}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 5}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle plat à four", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 1}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 2}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 5}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 5}, {"name": "Grande assiette creuse", "qty": 0}, {"name": "Grande cuillière", "qty": 5}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 5}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 5}, {"name": "pinces à linge", "qty": 20}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 1}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 1}, {"name": "Seau serpillère", "qty": 0}, {"name": "Serpillère", "qty": 0}, {"name": "Sous tasse", "qty": 5}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 5}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 5}]}, "MH.PREM.3CH": {"lodgings": ["103", "104", "105", "106"], "items": [{"name": "Assiette creuse", "qty": 12}, {"name": "Assiette dessert", "qty": 12}, {"name": "Assiette plate", "qty": 12}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 0}, {"name": "Balai brosse", "qty": 1}, {"name": "Bol", "qty": 6}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 6}, {"name": "Ciseaux", "qty": 0}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 12}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle plat à four", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 0}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 3}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 12}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 6}, {"name": "Grande assiette creuse", "qty": 1}, {"name": "Grande cuillière", "qty": 12}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 12}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 6}, {"name": "pinces à linge", "qty": 20}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 0}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 0}, {"name": "Seau serpillère", "qty": 1}, {"name": "Serpillère", "qty": 0}, {"name": "Sous tasse", "qty": 6}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 6}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 6}]}, "MH.PREM.2CH": {"lodgings": ["74", "75", "76", "77", "79", "80", "81", "82"], "items": [{"name": "Assiette creuse", "qty": 8}, {"name": "Assiette dessert", "qty": 8}, {"name": "Assiette plate", "qty": 8}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 0}, {"name": "Balai brosse", "qty": 1}, {"name": "Bol", "qty": 4}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 4}, {"name": "Ciseaux", "qty": 0}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 8}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle plat à four", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 1}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 3}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 8}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 4}, {"name": "Grande assiette creuse", "qty": 1}, {"name": "Grande cuillière", "qty": 8}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 8}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 4}, {"name": "pinces à linge", "qty": 20}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 1}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 0}, {"name": "Seau serpillère", "qty": 1}, {"name": "Serpillère", "qty": 1}, {"name": "Sous tasse", "qty": 4}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 4}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 4}]}, "MH CONF 3CH 63 au 69": {"lodgings": ["63", "64", "65", "66", "67", "69"], "items": [{"name": "Assiette creuse", "qty": 6}, {"name": "Assiette dessert", "qty": 6}, {"name": "Assiette plate", "qty": 6}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 1}, {"name": "Balai brosse", "qty": 0}, {"name": "Bol", "qty": 6}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 6}, {"name": "Ciseaux", "qty": 0}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 6}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle plat à four", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 0}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 1}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 6}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 6}, {"name": "Grande assiette creuse", "qty": 0}, {"name": "Grande cuillière", "qty": 6}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 6}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 6}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 6}, {"name": "pinces à linge", "qty": 20}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 0}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 0}, {"name": "Seau serpillère", "qty": 1}, {"name": "Serpillère", "qty": 0}, {"name": "Sous tasse", "qty": 0}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 6}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 6}]}, "MH CONF 3ch 107 au 110": {"lodgings": ["107", "108", "109", "110"], "items": [{"name": "Assiette creuse", "qty": 6}, {"name": "Assiette dessert", "qty": 6}, {"name": "Assiette plate", "qty": 6}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 0}, {"name": "Balai brosse", "qty": 1}, {"name": "Bol", "qty": 6}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 6}, {"name": "Ciseaux", "qty": 0}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 6}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle plat à four", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 0}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 1}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 6}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 0}, {"name": "Grande assiette creuse", "qty": 0}, {"name": "Grande cuillière", "qty": 6}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 6}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 6}, {"name": "pinces à linge", "qty": 0}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 1}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 1}, {"name": "Seau serpillère", "qty": 0}, {"name": "Serpillère", "qty": 1}, {"name": "Sous tasse", "qty": 6}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 6}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 6}]}, "MH.CONF.2CH": {"lodgings": ["70", "71"], "items": [{"name": "Assiette creuse", "qty": 4}, {"name": "Assiette dessert", "qty": 4}, {"name": "Assiette plate", "qty": 4}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 1}, {"name": "Balai brosse", "qty": 0}, {"name": "Bol", "qty": 4}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 4}, {"name": "Ciseaux", "qty": 0}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 4}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle plat à four", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 0}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 1}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 4}, {"name": "Grand saladier", "qty": 1}, {"name": "Grand verre à eau", "qty": 0}, {"name": "Grande assiette creuse", "qty": 0}, {"name": "Grande cuillière", "qty": 4}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 4}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 4}, {"name": "pinces à linge", "qty": 0}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 1}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 1}, {"name": "Seau serpillère", "qty": 0}, {"name": "Serpillère", "qty": 0}, {"name": "Sous tasse", "qty": 0}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 4}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 4}]}, "CHALET ECO": {"lodgings": ["C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"], "items": [{"name": "Assiette creuse", "qty": 5}, {"name": "Assiette dessert", "qty": 5}, {"name": "Assiette plate", "qty": 5}, {"name": "Bac à glaçons", "qty": 1}, {"name": "Balai", "qty": 1}, {"name": "Balai à franges", "qty": 0}, {"name": "Balai brosse", "qty": 1}, {"name": "Bol", "qty": 5}, {"name": "Brosse WC", "qty": 1}, {"name": "Cafetière", "qty": 1}, {"name": "Carafe", "qty": 1}, {"name": "Cendrier", "qty": 1}, {"name": "Cintres", "qty": 5}, {"name": "Ciseaux", "qty": 0}, {"name": "Cloche micro-onde", "qty": 1}, {"name": "Corbeille à pain", "qty": 1}, {"name": "Couteau", "qty": 5}, {"name": "Couteau 32cm", "qty": 1}, {"name": "Couteau à pain", "qty": 1}, {"name": "Couteau office", "qty": 1}, {"name": "Couvercle plat à four", "qty": 1}, {"name": "Couvercle poêle", "qty": 1}, {"name": "Couverts à salade", "qty": 1}, {"name": "Cuillière en bois", "qty": 0}, {"name": "Cuvette", "qty": 1}, {"name": "Dessous de plats", "qty": 1}, {"name": "Econome", "qty": 1}, {"name": "Ecumoire", "qty": 1}, {"name": "Egouttoir", "qty": 1}, {"name": "Ensemble casseroles", "qty": 1}, {"name": "Essoreuse à salade", "qty": 1}, {"name": "Etendoir à linge", "qty": 1}, {"name": "Faitout", "qty": 1}, {"name": "Fourchette", "qty": 5}, {"name": "Grand saladier", "qty": 0}, {"name": "Grand verre à eau", "qty": 0}, {"name": "Grande assiette creuse", "qty": 0}, {"name": "Grande cuillière", "qty": 5}, {"name": "Grande poêle", "qty": 1}, {"name": "Louche", "qty": 1}, {"name": "Mug", "qty": 0}, {"name": "Ouvre boite", "qty": 1}, {"name": "Passoire", "qty": 1}, {"name": "Pelle + balayette", "qty": 1}, {"name": "Petit saladier", "qty": 1}, {"name": "Petite cuillière", "qty": 5}, {"name": "Petite poêle", "qty": 1}, {"name": "Petit verre à eau", "qty": 5}, {"name": "pinces à linge", "qty": 20}, {"name": "Planche à découper", "qty": 1}, {"name": "Plat à four + couvercle", "qty": 1}, {"name": "Plat rond", "qty": 1}, {"name": "Plateau de service", "qty": 1}, {"name": "Poubelle", "qty": 1}, {"name": "Poubelle SDB", "qty": 1}, {"name": "Range couverts", "qty": 1}, {"name": "Seau ménage", "qty": 1}, {"name": "Seau serpillère", "qty": 0}, {"name": "Serpillère", "qty": 1}, {"name": "Sous tasse", "qty": 5}, {"name": "Spatule", "qty": 1}, {"name": "Tasse", "qty": 5}, {"name": "Tire bouchon", "qty": 1}, {"name": "Verre à vin", "qty": 5}]}};
+
+</script>
+<script id="app-script">
+// ===================== Métadonnées des typologies =====================
+const META = {
+  'COTT.PREM.3CH':          { label:'Cottage Premium 3 ch.',        group:'Cottages' },
+  'COTT.PREM.2CH':          { label:'Cottage Premium 2 ch.',        group:'Cottages' },
+  'COTT.CONF.3CH':          { label:'Cottage Confort 3 ch.',        group:'Cottages' },
+  'COTT.CONF.2CH':          { label:'Cottage Confort 2 ch.',        group:'Cottages' },
+  'MH.PREM.3CH':            { label:'Mobil-home Premium 3 ch.',     group:'Mobil-homes' },
+  'MH.PREM.2CH':            { label:'Mobil-home Premium 2 ch.',     group:'Mobil-homes' },
+  'MH CONF 3CH 63 au 69':   { label:'MH Confort 3 ch. (63 à 69)',   group:'Mobil-homes' },
+  'MH CONF 3ch 107 au 110': { label:'MH Confort 3 ch. (107 à 110)', group:'Mobil-homes' },
+  'MH.CONF.2CH':            { label:'Mobil-home Confort 2 ch.',     group:'Mobil-homes' },
+  'CHALET ECO':             { label:'Chalet Eco',                   group:'Chalets' },
+};
+const GROUP_ORDER = ['Cottages','Mobil-homes','Chalets'];
+const TYPO_ORDER = Object.keys(META);
+
+// ===================== État =====================
+// session[typoKey][lodgingId] = { done:bool, counts:{itemName:num}, notes:{itemName:str} }
+let session = {};
+let nav = { screen:'home' };       // {screen:'home'} | {screen:'typo', typo} | {screen:'checklist', typo, lodging} | {screen:'reassort'}
+let ui = { search:'', onlyGaps:false, openNotes:{} };
+
+function cloneDefaults(items){
+  const counts = {};
+  items.forEach(it => counts[it.name] = it.qty);
+  return counts;
+}
+
+function getState(typo, lodging){
+  if(!session[typo]) session[typo] = {};
+  if(!session[typo][lodging]){
+    session[typo][lodging] = { done:false, counts: cloneDefaults(DATA[typo].items), notes:{} };
+  }
+  return session[typo][lodging];
+}
+
+function isTouched(typo, lodging){
+  return !!(session[typo] && session[typo][lodging]);
+}
+
+// ===================== Calculs =====================
+function typoProgress(typo){
+  const lodgings = DATA[typo].lodgings;
+  let done = 0;
+  lodgings.forEach(l => { if(session[typo] && session[typo][l] && session[typo][l].done) done++; });
+  return { done, total: lodgings.length };
+}
+
+function overallProgress(){
+  let done=0, total=0;
+  TYPO_ORDER.forEach(t => {
+    const p = typoProgress(t);
+    done += p.done; total += p.total;
+  });
+  return { done, total };
+}
+
+function computeReassort(){
+  // { itemName: { qty: totalManque, sources: Set of "typo lodging" } }
+  const map = {};
+  TYPO_ORDER.forEach(typo => {
+    if(!session[typo]) return;
+    DATA[typo].lodgings.forEach(lodging => {
+      const st = session[typo][lodging];
+      if(!st || !st.done) return;
+      DATA[typo].items.forEach(it => {
+        const counted = st.counts[it.name];
+        const manque = it.qty - (Number(counted)||0);
+        if(manque > 0){
+          if(!map[it.name]) map[it.name] = { qty:0, count:0 };
+          map[it.name].qty += manque;
+          map[it.name].count += 1;
+        }
+      });
+    });
+  });
+  return map;
+}
+
+// ===================== Rendu racine =====================
+function render(){
+  const app = document.getElementById('app');
+  if(nav.screen === 'home') app.innerHTML = renderHome();
+  else if(nav.screen === 'typo') app.innerHTML = renderTypo(nav.typo);
+  else if(nav.screen === 'checklist') app.innerHTML = renderChecklist(nav.typo, nav.lodging);
+  else if(nav.screen === 'reassort') app.innerHTML = renderReassort();
+  attachHandlers();
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ===================== Écran : Accueil =====================
+function renderHome(){
+  const prog = overallProgress();
+  const pct = prog.total ? Math.round(100*prog.done/prog.total) : 0;
+
+  let groupsHtml = '';
+  GROUP_ORDER.forEach(group => {
+    const typos = TYPO_ORDER.filter(t => META[t].group === group);
+    groupsHtml += `<div class="section-title">${esc(group)}</div><div class="grid">`;
+    typos.forEach(t => {
+      const p = typoProgress(t);
+      const pillClass = p.done===0 ? 'zero' : (p.done===p.total ? 'done' : '');
+      groupsHtml += `
+        <button class="typo-card" data-nav="typo" data-typo="${esc(t)}">
+          <div class="name">${esc(META[t].label)}</div>
+          <div class="meta">
+            <span class="count">${p.total} logement${p.total>1?'s':''}</span>
+            <span class="pill ${pillClass}">${p.done}/${p.total}</span>
+          </div>
+        </button>`;
+    });
+    groupsHtml += `</div>`;
+  });
+
+  return `
+    <div class="appbar">
+      <div class="mark">${markSvg()}</div>
+      <div class="titles">
+        <h1>Inventaire de fermeture</h1>
+      </div>
+      <button class="iconbtn" data-nav="reassort" title="Liste de réassort">${boxSvg()}</button>
+    </div>
+    <div class="content">
+      <div class="hero">
+        <div class="big">${prog.done}<span> / ${prog.total} logements comptés</span></div>
+        <div class="sub">${pct}% de l'inventaire de fermeture réalisé</div>
+        <div class="track"><div style="width:${pct}%"></div></div>
+      </div>
+      ${groupsHtml}
+      <div class="section-title">Sauvegarde</div>
+      <div class="toolbar">
+        <button class="linkbtn" data-action="export-json" style="flex:1;">Exporter la sauvegarde</button>
+        <button class="linkbtn" data-action="import-json" style="flex:1;">Importer une sauvegarde</button>
+      </div>
+      <input type="file" id="import-file" class="file-input" accept="application/json">
+      <div class="notice">Aucune donnée n'est stockée automatiquement dans le navigateur : exportez la sauvegarde (JSON) à la fin de chaque session, et réimportez-la la prochaine fois pour continuer le comptage là où vous en étiez.</div>
+    </div>`;
+}
+
+// ===================== Écran : Typologie =====================
+function renderTypo(typo){
+  const meta = META[typo];
+  const lodgings = DATA[typo].lodgings;
+  let cards = '';
+  lodgings.forEach(l => {
+    const touched = isTouched(typo, l);
+    const st = touched ? session[typo][l] : null;
+    const dotClass = st && st.done ? 'done' : (st ? 'progress' : '');
+    const label = st && st.done ? 'Terminé' : (st ? 'En cours' : 'À faire');
+    cards += `
+      <button class="lodging-card" data-nav="checklist" data-typo="${esc(typo)}" data-lodging="${esc(l)}">
+        <span class="status-dot ${dotClass}"></span>
+        <span class="num">${esc(l)}</span>
+        <span class="label">${label}</span>
+      </button>`;
+  });
+
+  return `
+    <div class="appbar">
+      <button class="backbtn" data-nav="home">‹</button>
+      <div class="titles">
+        <div class="eyebrow">${DATA[typo].items.length} articles de référence</div>
+        <h1>${esc(meta.label)}</h1>
+      </div>
+    </div>
+    <div class="content">
+      <div class="section-title">Choisir un logement à compter</div>
+      <div class="lodging-grid">${cards}</div>
+    </div>`;
+}
+
+// ===================== Écran : Checklist logement =====================
+function renderChecklist(typo, lodging){
+  const meta = META[typo];
+  const st = getState(typo, lodging);
+  const items = DATA[typo].items;
+
+  let manqueCount = 0, surplusCount = 0, okCount = 0;
+  items.forEach(it => {
+    const c = Number(st.counts[it.name]) || 0;
+    if(c < it.qty) manqueCount++;
+    else if(c > it.qty) surplusCount++;
+    else okCount++;
+  });
+
+  const search = ui.search.trim().toLowerCase();
+  let rows = '';
+  items.forEach(it => {
+    if(search && !it.name.toLowerCase().includes(search)) return;
+    const c = Number(st.counts[it.name]) || 0;
+    const diff = c - it.qty;
+    if(ui.onlyGaps && diff === 0) return;
+    let stateClass = '';
+    let flag = '';
+    if(diff < 0){ stateClass='state-manque'; flag = `<div class="item-flag">Manque ${Math.abs(diff)}</div>`; }
+    else if(diff > 0){ stateClass='state-surplus'; flag = `<div class="item-flag">+${diff} par rapport à la référence</div>`; }
+
+    const noteOpen = !!ui.openNotes[it.name];
+    const noteVal = st.notes[it.name] || '';
+
+    rows += `
+      <div class="item-row ${stateClass}">
+        <div class="item-top">
+          <div>
+            <div class="item-name">${esc(it.name)}</div>
+            <div class="item-ref">Référence : ${it.qty}</div>
+          </div>
+          <div class="stepper">
+            <button data-action="dec" data-item="${esc(it.name)}">−</button>
+            <input type="number" inputmode="numeric" min="0" data-action="set" data-item="${esc(it.name)}" value="${c}">
+            <button data-action="inc" data-item="${esc(it.name)}">+</button>
+          </div>
+        </div>
+        ${flag}
+        <button class="note-toggle" data-action="toggle-note" data-item="${esc(it.name)}">${noteOpen ? 'Masquer la note' : (noteVal ? 'Modifier la note' : 'Ajouter une note')}</button>
+        ${noteOpen ? `<div class="note-area"><textarea data-action="note" data-item="${esc(it.name)}" placeholder="Ex : cassé, taché, à remplacer…">${esc(noteVal)}</textarea></div>` : ''}
+      </div>`;
+  });
+
+  if(!rows) rows = `<div class="empty-note">Aucun article ne correspond à la recherche.</div>`;
+
+  return `
+    <div class="appbar">
+      <button class="backbtn" data-nav="typo" data-typo="${esc(typo)}">‹</button>
+      <div class="titles">
+        <div class="eyebrow">${esc(meta.label)}</div>
+        <h1>Logement ${esc(lodging)}</h1>
+      </div>
+    </div>
+    <div class="content">
+      <div class="tally">
+        <div class="box"><div class="n">${okCount}</div><div class="l">conformes</div></div>
+        <div class="box warn"><div class="n">${manqueCount}</div><div class="l">manquants</div></div>
+        <div class="box"><div class="n">${surplusCount}</div><div class="l">en surplus</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="searchbox">${searchSvg()}<input type="text" placeholder="Rechercher un article…" data-action="search" value="${esc(ui.search)}"></div>
+        <button class="chip-toggle ${ui.onlyGaps?'active':''}" data-action="toggle-gaps">Écarts seulement</button>
+      </div>
+      <div class="toolbar">
+        <button class="linkbtn" style="flex:1;" data-action="reset-defaults" data-typo="${esc(typo)}" data-lodging="${esc(lodging)}">Tout remettre à la référence</button>
+      </div>
+      ${rows}
+    </div>
+    <div class="actionbar">
+      <button class="btn btn-ghost" data-nav="typo" data-typo="${esc(typo)}">Plus tard</button>
+      <button class="btn btn-primary" data-action="finish" data-typo="${esc(typo)}" data-lodging="${esc(lodging)}">${st.done ? 'Logement terminé ✓' : 'Terminer ce logement'}</button>
+    </div>`;
+}
+
+// ===================== Écran : Réassort =====================
+function renderReassort(){
+  const map = computeReassort();
+  const entries = Object.entries(map).sort((a,b) => b[1].qty - a[1].qty);
+  const prog = overallProgress();
+
+  let rows = '';
+  if(entries.length === 0){
+    rows = `<div class="empty-note">Aucun manque enregistré pour l'instant. Terminez des logements pour construire la liste de réassort.</div>`;
+  } else {
+    entries.forEach(([name, v]) => {
+      rows += `
+        <div class="reassort-row">
+          <div>
+            <div class="name">${esc(name)}</div>
+            <div class="from">${v.count} logement${v.count>1?'s':''} concerné${v.count>1?'s':''}</div>
+          </div>
+          <div class="qty">${v.qty}</div>
+        </div>`;
+    });
+  }
+
+  return `
+    <div class="appbar">
+      <button class="backbtn" data-nav="home">‹</button>
+      <div class="titles">
+        <div class="eyebrow">${prog.done}/${prog.total} logements terminés</div>
+        <h1>Liste de réassort</h1>
+      </div>
+    </div>
+    <div class="content">
+      ${prog.done < prog.total ? `<div class="notice">Cette liste ne compte que les logements marqués « terminé ». ${prog.total - prog.done} logement(s) restent à compter.</div>` : ''}
+      <div class="toolbar">
+        <button class="linkbtn" style="flex:1;" data-action="export-csv">Exporter en CSV (à commander)</button>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+// ===================== Icônes SVG (marque simple) =====================
+function markSvg(){
+  return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1V10.5Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+}
+function boxSvg(){
+  return `<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M3 8l9-4 9 4-9 4-9-4Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 8v8l9 4 9-4V8" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 12v8" stroke="#fff" stroke-width="1.6"/></svg>`;
+}
+function searchSvg(){
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#63685E" stroke-width="1.8"/><path d="m20 20-3.5-3.5" stroke="#63685E" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+}
+
+// ===================== Interactions =====================
+function attachHandlers(){
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', () => {
+      const screen = el.dataset.nav;
+      if(screen === 'home') nav = { screen:'home' };
+      else if(screen === 'typo') nav = { screen:'typo', typo: el.dataset.typo };
+      else if(screen === 'checklist'){
+        nav = { screen:'checklist', typo: el.dataset.typo, lodging: el.dataset.lodging };
+        ui.search=''; ui.onlyGaps=false; ui.openNotes={};
+      }
+      else if(screen === 'reassort') nav = { screen:'reassort' };
+      window.scrollTo(0,0);
+      render();
+    });
+  });
+
+  document.querySelectorAll('[data-action="dec"]').forEach(el => {
+    el.addEventListener('click', () => { adjustCount(el.dataset.item, -1); });
+  });
+  document.querySelectorAll('[data-action="inc"]').forEach(el => {
+    el.addEventListener('click', () => { adjustCount(el.dataset.item, 1); });
+  });
+  document.querySelectorAll('[data-action="set"]').forEach(el => {
+    el.addEventListener('change', () => { setCount(el.dataset.item, el.value); });
+  });
+  document.querySelectorAll('[data-action="toggle-note"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.item;
+      ui.openNotes[key] = !ui.openNotes[key];
+      render();
+    });
+  });
+  document.querySelectorAll('[data-action="note"]').forEach(el => {
+    el.addEventListener('change', () => {
+      const st = getState(nav.typo, nav.lodging);
+      st.notes[el.dataset.item] = el.value;
+    });
+  });
+  const searchEl = document.querySelector('[data-action="search"]');
+  if(searchEl){
+    searchEl.addEventListener('input', () => { ui.search = searchEl.value; render(); refocusSearch(); });
+  }
+  const gapsEl = document.querySelector('[data-action="toggle-gaps"]');
+  if(gapsEl){
+    gapsEl.addEventListener('click', () => { ui.onlyGaps = !ui.onlyGaps; render(); });
+  }
+  const resetEl = document.querySelector('[data-action="reset-defaults"]');
+  if(resetEl){
+    resetEl.addEventListener('click', () => {
+      if(confirm('Remettre tous les articles de ce logement à leur quantité de référence ?')){
+        const st = getState(resetEl.dataset.typo, resetEl.dataset.lodging);
+        st.counts = cloneDefaults(DATA[resetEl.dataset.typo].items);
+        render();
+      }
+    });
+  }
+  const finishEl = document.querySelector('[data-action="finish"]');
+  if(finishEl){
+    finishEl.addEventListener('click', () => {
+      const st = getState(finishEl.dataset.typo, finishEl.dataset.lodging);
+      st.done = true;
+      nav = { screen:'typo', typo: finishEl.dataset.typo };
+      window.scrollTo(0,0);
+      render();
+    });
+  }
+  const exportJsonEl = document.querySelector('[data-action="export-json"]');
+  if(exportJsonEl){
+    exportJsonEl.addEventListener('click', exportJson);
+  }
+  const importJsonEl = document.querySelector('[data-action="import-json"]');
+  if(importJsonEl){
+    importJsonEl.addEventListener('click', () => document.getElementById('import-file').click());
+  }
+  const fileInput = document.getElementById('import-file');
+  if(fileInput){
+    fileInput.addEventListener('change', importJson);
+  }
+  const exportCsvEl = document.querySelector('[data-action="export-csv"]');
+  if(exportCsvEl){
+    exportCsvEl.addEventListener('click', exportCsv);
+  }
+}
+
+function refocusSearch(){
+  const el = document.querySelector('[data-action="search"]');
+  if(el){ el.focus(); const v = el.value; el.value=''; el.value=v; }
+}
+
+function adjustCount(itemName, delta){
+  const st = getState(nav.typo, nav.lodging);
+  const cur = Number(st.counts[itemName]) || 0;
+  st.counts[itemName] = Math.max(0, cur + delta);
+  render();
+}
+function setCount(itemName, val){
+  const st = getState(nav.typo, nav.lodging);
+  let n = parseInt(val, 10);
+  if(isNaN(n) || n < 0) n = 0;
+  st.counts[itemName] = n;
+  render();
+}
+
+// ===================== Export / Import =====================
+function exportJson(){
+  const payload = { exportedAt: new Date().toISOString(), session };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date();
+  const stamp = d.toISOString().slice(0,10);
+  a.href = url;
+  a.download = `inventaire-fermeture-sauvegarde-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importJson(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const payload = JSON.parse(reader.result);
+      const imported = payload.session || payload;
+      Object.keys(imported).forEach(typo => {
+        if(!session[typo]) session[typo] = {};
+        Object.keys(imported[typo]).forEach(lodging => {
+          session[typo][lodging] = imported[typo][lodging];
+        });
+      });
+      alert('Sauvegarde importée avec succès.');
+      render();
+    }catch(err){
+      alert("Ce fichier n'a pas pu être lu. Vérifiez qu'il s'agit bien d'une sauvegarde exportée depuis cet outil.");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function exportCsv(){
+  const map = computeReassort();
+  const entries = Object.entries(map).sort((a,b) => b[1].qty - a[1].qty);
+  let csv = 'Fournisseurs;LISTE DES PRODUITS;Référence;Quantité requise;P.U HT;Réassort;Montant HT\n';
+  entries.forEach(([name, v]) => {
+    csv += `;"${name.replace(/"/g,'""')}";;${v.qty};;;\n`;
+  });
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date();
+  const stamp = d.toISOString().slice(0,10);
+  a.href = url;
+  a.download = `liste-reassort-${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ===================== Démarrage =====================
+render();
+
+</script>
+</body>
+</html>
